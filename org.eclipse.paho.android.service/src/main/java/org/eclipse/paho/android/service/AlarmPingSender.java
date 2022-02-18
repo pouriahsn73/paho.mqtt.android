@@ -42,7 +42,11 @@ import android.util.Log;
 class AlarmPingSender implements MqttPingSender {
 	// Identifier for Intents, log messages, etc..
 	private static final String TAG = "AlarmPingSender";
-
+	private val pendingIntentFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        	PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    		} else {
+        	PendingIntent.FLAG_UPDATE_CURRENT
+    	}
 	// TODO: Add log.
 	private ClientComms comms;
 	private MqttService service;
@@ -74,7 +78,7 @@ class AlarmPingSender implements MqttPingSender {
 		service.registerReceiver(alarmReceiver, new IntentFilter(action));
 
 		pendingIntent = PendingIntent.getBroadcast(service, 0, new Intent(
-				action), PendingIntent.FLAG_UPDATE_CURRENT);
+				action), pendingIntentFlags);
 
 		schedule(comms.getKeepAlive());
 		hasStarted = true;
